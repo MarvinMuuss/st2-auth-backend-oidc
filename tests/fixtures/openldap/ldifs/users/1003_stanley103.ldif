@@ -1,0 +1,16 @@
+dn: uid=stanley103,ou=users,dc=stackstorm,dc=net
+objectClass: top
+objectClass: account
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: stanley103
+uid: stanley103
+uidNumber: 1003
+gidNumber: 100
+homeDirectory: /home/stanley103
+loginShell: /bin/bash
+gecos: stanley103
+userPassword: stanl3y103
+shadowLastChange: 0
+shadowMax: 0
+shadowWarning: 0
