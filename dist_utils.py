@@ -77,7 +77,10 @@ def fetch_requirements(requirements_file_path):
         link = getattr(req, 'link', getattr(req, 'url', None))
         if link:
             links.append(str(link))
-        reqs.append(str(req.req))
+        try:
+            reqs.append(str(req.req))
+        except:
+            reqs.append(str(req.requirement))
     return (reqs, links)
 
 

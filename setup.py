@@ -36,7 +36,7 @@ setup(
     name='st2-auth-backend-oidc',
     version=version,
     description='Custom RIAG Digital authentication backend for OIDC.',
-    author='Marvin Muuß',
+    author='Marvin Muuss',
     author_email='marvin.muuss@riag-digital.com',
     url='https://riag.digital',
     license='Apache License (2.0)',
