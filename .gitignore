@@ -64,7 +64,8 @@ debian/st2-auth-ldap.*
 
 # Virtual environments
 .venv/
-virtualenv/
+virtualenv.bak/
 
 # Pycharm
 .git/
+.idea/

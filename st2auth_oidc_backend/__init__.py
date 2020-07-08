@@ -14,10 +14,10 @@
 
 from __future__ import absolute_import
 
-from .ldap_backend import LDAPAuthenticationBackend
+from .oidc_backend import OIDCAuthenticationBackend
 
-__version__ = '3.3dev'
+__version__ = '0.1dev'
 
 __all__ = [
-    'LDAPAuthenticationBackend'
+    'OIDCAuthenticationBackend'
 ]

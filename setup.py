@@ -33,12 +33,12 @@ version = parse_version_string(INIT_FILE)
 install_reqs, dep_links = fetch_requirements(REQUIREMENTS_FILE)
 
 setup(
-    name='st2-enterprise-auth-backend-ldap',
+    name='st2-auth-backend-oidc',
     version=version,
-    description='StackStorm authentication backend for LDAP.',
-    author='StackStorm, Inc.',
-    author_email='info@stackstorm.com',
-    url='https://stackstorm.com/',
+    description='Custom RIAG Digital authentication backend for OIDC.',
+    author='Marvin Muuß',
+    author_email='marvin.muuss@riag-digital.com',
+    url='https://riag.digital',
     license='Apache License (2.0)',
     download_url='https://stackstorm.com/',
     classifiers=[
@@ -60,7 +60,7 @@ setup(
     test_suite='tests',
     entry_points={
         'st2auth.backends.backend': [
-            'ldap = st2auth_oidc_backend.ldap_backend:LDAPAuthenticationBackend',
+            'oidc = st2auth_oidc_backend.oidc_backend:OIDCAuthenticationBackend',
         ],
     },
     zip_safe=False
