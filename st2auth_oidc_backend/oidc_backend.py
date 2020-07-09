@@ -63,7 +63,7 @@ class OIDCAuthenticationBackend(object):
             raise ValueError('Client secret is not provided.')
 
         self._base_url = base_url
-        self._realm = realm
+        self._realm = realm.lower()
         self._client_name = client_name
         self._client_id = client_id
         self._client_secret = client_secret
@@ -74,6 +74,9 @@ class OIDCAuthenticationBackend(object):
             "ftp": ftp_proxy
         }
         self._verify = verify_ssl
+        if not verify_ssl:
+            from urllib3.exceptions import InsecureRequestWarning
+            requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
         res, access_token = self._get_access_token_for_sa(client_name, client_secret)
         if not res:
@@ -153,7 +156,9 @@ class OIDCAuthenticationBackend(object):
         resp = requests.post(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/token',
                              data=data,
                              headers=headers,
-                             proxies=self._proxy_dict, auth=HTTPBasicAuth(sa_name, sa_pass), verify=self._verify)
+                             proxies=self._proxy_dict,
+                             auth=HTTPBasicAuth(sa_name, sa_pass),
+                             verify=self._verify)
         if resp.status_code == 200:
             return True, resp.json().get('access_token')
         else:
@@ -181,7 +186,8 @@ class OIDCAuthenticationBackend(object):
 
     def _fetch_user(self, username, access_token):
         resp = requests.get(self._base_url + '/auth/admin/realms/' + self._realm + '/users?username=' + username,
-                            headers={'Authorization': 'Bearer ' + access_token}, proxies=self._proxy_dict,
+                            headers={'Authorization': 'Bearer ' + access_token},
+                            proxies=self._proxy_dict,
                             verify=self._verify)
         if resp.status_code != 200:
             LOG.exception("Failed to fetch users.")
