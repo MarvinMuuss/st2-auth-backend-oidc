@@ -28,21 +28,22 @@ class KeycloakAuthenticationTest(unittest2.TestCase):
         cls.client_name = os.environ.get('ST2_OIDC_CLIENT_NAME', 'spring-boot')
         cls.client_id = os.environ.get('ST2_OIDC_CLIENT_ID', 'ad26a226')
         cls.client_secret = os.environ.get('ST2_OIDC_CLIENT_SECRET', '45892b6')
+        cls.verify_ssl = False
 
     def test_authenticate(self):
-        username = 'spring-user'
-        passwd = 'xx'
+        username = 'developer'
+        passwd = 'developer_pass'
 
         backend = oidc_backend.OIDCAuthenticationBackend(self.base_url, self.realm, self.client_name, self.client_id,
-                                                         self.client_secret)
+                                                         self.client_secret, verify_ssl=self.verify_ssl)
         authenticated = backend.authenticate(username, passwd)
         self.assertTrue(authenticated)
 
     def test_user(self):
-        username = 'spring-user'
+        username = 'developer'
 
         backend = oidc_backend.OIDCAuthenticationBackend(self.base_url, self.realm, self.client_name, self.client_id,
-                                                         self.client_secret)
+                                                         self.client_secret, verify_ssl=self.verify_ssl)
 
         user = backend.get_user(username)
         self.assertIsNotNone(user)
@@ -52,11 +53,11 @@ class KeycloakAuthenticationTest(unittest2.TestCase):
         self.assertIn('lastName', user)
 
     def test_groups_client_roles(self):
-        username = 'spring-user'
-        roles = ['client-spring-role', 'spring-group-role']
+        username = 'developer'
+        roles = ['st2-read', 'st2-execute']
 
         backend = oidc_backend.OIDCAuthenticationBackend(self.base_url, self.realm, self.client_name, self.client_id,
-                                                         self.client_secret)
+                                                         self.client_secret, verify_ssl=self.verify_ssl)
 
         groups = backend.get_user_groups(username)
         self.assertIsNotNone(groups)
@@ -64,11 +65,11 @@ class KeycloakAuthenticationTest(unittest2.TestCase):
             self.assertIn(role, groups)
 
     def test_groups_realm_roles(self):
-        username = 'grobp'
-        roles = ['KeyCloak']
+        username = 'developer'
+        roles = ['St2-developers']
 
         backend = oidc_backend.OIDCAuthenticationBackend(self.base_url, self.realm, self.client_name, self.client_id,
-                                                         self.client_secret, use_client_roles=False)
+                                                         self.client_secret, use_client_roles=False, verify_ssl=self.verify_ssl)
 
         groups = backend.get_user_groups(username)
         self.assertIsNotNone(groups)

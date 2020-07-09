@@ -41,8 +41,9 @@ class OIDCAuthenticationBackend(object):
         AuthBackendCapability.HAS_GROUP_INFORMATION
     )
 
-    def __init__(self, base_url, realm, client_name, client_id, client_secret, use_client_roles=True, http_proxy=None, https_proxy=None,
-                 ftp_proxy=None):
+    def __init__(self, base_url, realm, client_name, client_id, client_secret, use_client_roles=True, http_proxy=None,
+                 https_proxy=None,
+                 ftp_proxy=None, verify_ssl=True):
 
         if not base_url:
             raise ValueError('Base URL to connect to the OIDC server is not provided.')
@@ -72,13 +73,14 @@ class OIDCAuthenticationBackend(object):
             "https": https_proxy,
             "ftp": ftp_proxy
         }
+        self._verify = verify_ssl
 
         res, access_token = self._get_access_token_for_sa(client_name, client_secret)
         if not res:
             LOG.exception("Failed to fetch access token for service account.")
         else:
             resp = requests.get(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/certs',
-                                proxies=self._proxy_dict)
+                                proxies=self._proxy_dict, verify=self._verify)
             public_key = RSAAlgorithm.from_jwk(json.dumps(resp.json().get('keys')[0]))
             decoded = jwt.decode(access_token, public_key, algorithms=['RS256'], audience='account')
             realm_roles = decoded.get('resource_access', {}).get('realm-management', {}).get('roles', [])
@@ -134,7 +136,7 @@ class OIDCAuthenticationBackend(object):
                 role_url = role_url + '/realm'
             resp = requests.get(
                 self._base_url + role_url, headers={'Authorization': 'Bearer ' + access_token},
-                proxies=self._proxy_dict)
+                proxies=self._proxy_dict, verify=self._verify)
             if resp.status_code != 200:
                 LOG.exception("Failed to fetch user roles for " + username)
             groups = list(map(lambda role: role.get('name'), resp.json()))
@@ -151,7 +153,7 @@ class OIDCAuthenticationBackend(object):
         resp = requests.post(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/token',
                              data=data,
                              headers=headers,
-                             proxies=self._proxy_dict, auth=HTTPBasicAuth(sa_name, sa_pass))
+                             proxies=self._proxy_dict, auth=HTTPBasicAuth(sa_name, sa_pass), verify=self._verify)
         if resp.status_code == 200:
             return True, resp.json().get('access_token')
         else:
@@ -169,7 +171,8 @@ class OIDCAuthenticationBackend(object):
         resp = requests.post(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/token',
                              data=data,
                              headers=headers,
-                             proxies=self._proxy_dict)
+                             proxies=self._proxy_dict,
+                             verify=self._verify)
         if resp.status_code == 200:
             return True, resp.json().get('access_token')
         else:
@@ -178,7 +181,8 @@ class OIDCAuthenticationBackend(object):
 
     def _fetch_user(self, username, access_token):
         resp = requests.get(self._base_url + '/auth/admin/realms/' + self._realm + '/users?username=' + username,
-                            headers={'Authorization': 'Bearer ' + access_token}, proxies=self._proxy_dict)
+                            headers={'Authorization': 'Bearer ' + access_token}, proxies=self._proxy_dict,
+                            verify=self._verify)
         if resp.status_code != 200:
             LOG.exception("Failed to fetch users.")
         users = resp.json()
