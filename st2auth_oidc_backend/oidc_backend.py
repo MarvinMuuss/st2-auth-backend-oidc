@@ -22,6 +22,7 @@ import logging
 import jwt
 import requests
 from jwt.algorithms import RSAAlgorithm
+from requests.auth import HTTPBasicAuth
 from st2auth.backends.constants import AuthBackendCapability
 
 __all__ = [
@@ -40,8 +41,7 @@ class OIDCAuthenticationBackend(object):
         AuthBackendCapability.HAS_GROUP_INFORMATION
     )
 
-    def __init__(self, base_url, realm, client_name, client_id, client_secret, service_account_name,
-                 service_account_pass, use_client_roles=True, http_proxy=None, https_proxy=None,
+    def __init__(self, base_url, realm, client_name, client_id, client_secret, use_client_roles=True, http_proxy=None, https_proxy=None,
                  ftp_proxy=None):
 
         if not base_url:
@@ -61,19 +61,11 @@ class OIDCAuthenticationBackend(object):
         if not client_secret:
             raise ValueError('Client secret is not provided.')
 
-        if not service_account_name:
-            raise ValueError('Serviceaccount username is not provided.')
-
-        if not service_account_pass:
-            raise ValueError('Serviceaccount password is not provided.')
-
         self._base_url = base_url
         self._realm = realm
         self._client_name = client_name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._sa_name = service_account_name
-        self._sa_pass = service_account_pass
         self._use_client_roles = use_client_roles
         self._proxy_dict = {
             "http": http_proxy,
@@ -81,7 +73,7 @@ class OIDCAuthenticationBackend(object):
             "ftp": ftp_proxy
         }
 
-        res, access_token = self._get_access_token(service_account_name, service_account_pass)
+        res, access_token = self._get_access_token_for_sa(client_name, client_secret)
         if not res:
             LOG.exception("Failed to fetch access token for service account.")
         else:
@@ -114,7 +106,7 @@ class OIDCAuthenticationBackend(object):
         :rtype: ``dict``
         """
         try:
-            result, access_token = self._get_access_token(self._sa_name, self._sa_pass)
+            result, access_token = self._get_access_token_for_sa(self._client_name, self._client_secret)
             if not result:
                 LOG.exception("Failed to fetch access token for service account.")
             user = self._fetch_user(username, access_token)
@@ -131,7 +123,7 @@ class OIDCAuthenticationBackend(object):
         :rtype: ``list`` of ``str``
         """
         try:
-            result, access_token = self._get_access_token(self._sa_name, self._sa_pass)
+            result, access_token = self._get_access_token_for_sa(self._client_name, self._client_secret)
             if not result:
                 LOG.exception("Failed to fetch access token for service account.")
             user = self._fetch_user(username, access_token)
@@ -151,6 +143,20 @@ class OIDCAuthenticationBackend(object):
             return None
 
         return groups
+
+    def _get_access_token_for_sa(self, sa_name, sa_pass):
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        data = {"grant_type": "client_credentials"}
+
+        resp = requests.post(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/token',
+                             data=data,
+                             headers=headers,
+                             proxies=self._proxy_dict, auth=HTTPBasicAuth(sa_name, sa_pass))
+        if resp.status_code == 200:
+            return True, resp.json().get('access_token')
+        else:
+            LOG.exception("Failed to authenticate user " + sa_name)
+            return False, resp
 
     def _get_access_token(self, username, password):
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
