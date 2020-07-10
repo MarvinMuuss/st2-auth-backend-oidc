@@ -92,29 +92,3 @@ class OIDCBackendConfigurationTest(unittest2.TestCase):
             OIDC_SERVICE_ACCOUNT_NAME,
             OIDC_SERVICE_ACCOUNT_PASS
         )
-
-    def test_null_sa_name(self):
-        self.assertRaises(
-            ValueError,
-            oidc_backend.OIDCAuthenticationBackend,
-            OIDC_URL,
-            OIDC_REALM,
-            OIDC_CLIENT_NAME,
-            OIDC_CLIENT_ID,
-            OIDC_CLIENT_SECRET,
-            None,
-            OIDC_SERVICE_ACCOUNT_PASS
-        )
-
-    def test_null_sa_pass(self):
-        self.assertRaises(
-            ValueError,
-            oidc_backend.OIDCAuthenticationBackend,
-            OIDC_URL,
-            OIDC_REALM,
-            OIDC_CLIENT_NAME,
-            OIDC_CLIENT_ID,
-            OIDC_CLIENT_SECRET,
-            OIDC_SERVICE_ACCOUNT_NAME,
-            None
-        )

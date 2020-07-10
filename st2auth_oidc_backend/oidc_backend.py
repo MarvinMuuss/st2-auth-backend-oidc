@@ -31,7 +31,7 @@ __all__ = [
 
 LOG = logging.getLogger(__name__)
 
-EXPECTED_PERMISSIONS = ['view-users', 'query-users', 'query-users']
+EXPECTED_PERMISSIONS = ['view-users', 'query-users', 'query-groups']
 
 
 class OIDCAuthenticationBackend(object):
