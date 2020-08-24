@@ -37,17 +37,11 @@ class OIDCAuthenticationBackend(object):
         AuthBackendCapability.HAS_GROUP_INFORMATION
     )
 
-    def __init__(self, base_url, realm, client_name, client_secret, use_client_roles=True, http_proxy=None,
-                 https_proxy=None,
-                 ftp_proxy=None, verify_ssl=True):
+    def __init__(self, token_url, client_name, client_secret, use_client_roles=True, http_proxy=None,
+                 https_proxy=None, ftp_proxy=None, verify_ssl=True):
 
-        if not base_url:
-            raise ValueError('Base URL to connect to the OIDC server is not provided.')
-        elif base_url.endswith('/'):
-            base_url = base_url[:-1]
-
-        if not realm:
-            raise ValueError('Realm name is not provided.')
+        if not token_url:
+            raise ValueError('Token URL to connect to the OIDC server is not provided.')
 
         if not client_name:
             raise ValueError('Client name is not provided.')
@@ -55,8 +49,7 @@ class OIDCAuthenticationBackend(object):
         if not client_secret:
             raise ValueError('Client secret is not provided.')
 
-        self._base_url = base_url
-        self._realm = realm.lower()
+        self._token_url = token_url
         self._client_name = client_name
         self._client_secret = client_secret
         self._use_client_roles = use_client_roles
@@ -132,7 +125,7 @@ class OIDCAuthenticationBackend(object):
                 "username": username,
                 "password": password}
 
-        resp = requests.post(self._base_url + '/auth/realms/' + self._realm + '/protocol/openid-connect/token',
+        resp = requests.post(self._token_url,
                              data=data,
                              headers=headers,
                              proxies=self._proxy_dict,
