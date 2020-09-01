@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: st2-auth-ldap
+Upstream-Name: st2-auth-oidc
 Source: https://www.stackstorm.com
 
 Files: *

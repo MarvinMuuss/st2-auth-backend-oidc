@@ -1,4 +1,4 @@
-Source: st2-auth-ldap
+Source: st2-auth-oidc
 Section: Python
 Priority: optional
 Maintainer: StackStorm Engineering <opsadmin@stackstorm.com>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.4
 Homepage: http://stackstorm.com/
 
-Package: st2-auth-ldap
+Package: st2-auth-oidc
 Architecture: amd64
 Pre-Depends: st2
 Depends: ${misc:Depends}, st2, libldap-2.4-2

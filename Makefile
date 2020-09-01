@@ -13,7 +13,7 @@
 # limitations under the License.
 
 SHELL := /bin/bash
-PKG_NAME := st2-auth-ldap
+PKG_NAME := st2-auth-oidc
 PKG_RELEASE ?= 1
 WHEELSDIR ?= opt/stackstorm/share/wheels
 VIRTUALENV_DIR ?= virtualenv
@@ -135,8 +135,8 @@ lint: requirements .clone_st2_repo .lint
 
 .PHONY: .lint
 .lint:
-	. $(VIRTUALENV_DIR)/bin/activate; flake8 --config ./lint-configs/python/.flake8-proprietary st2auth_enterprise_ldap_backend/
-	. $(VIRTUALENV_DIR)/bin/activate; pylint -E --rcfile=./lint-configs/python/.pylintrc st2auth_enterprise_ldap_backend/
+	. $(VIRTUALENV_DIR)/bin/activate; flake8 --config ./lint-configs/python/.flake8-proprietary st2auth_oidc_backend/
+	. $(VIRTUALENV_DIR)/bin/activate; pylint -E --rcfile=./lint-configs/python/.pylintrc st2auth_oidc_backend/
 
 .PHONY: unit-tests
 unit-tests: requirements .clone_st2_repo .unit-tests
@@ -187,4 +187,4 @@ deb:
 	dpkg-buildpackage -b -uc -us -j`_cpunum=$$(nproc); echo "${_cpunum:-1}"`
 
 rpm:
-	rpmbuild -bb rpm/st2-auth-ldap.spec
+	rpmbuild -bb rpm/st2-auth-oidc.spec

@@ -56,8 +56,8 @@ docs/_build/
 target/
 
 # Debian package cache
-debian/st2-auth-ldap
-debian/st2-auth-ldap.*
+debian/st2-auth-oidc
+debian/st2-auth-oidc.*
 
 # Makefile stamps
 .stamp-*

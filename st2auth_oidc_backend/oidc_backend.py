@@ -78,6 +78,7 @@ class OIDCAuthenticationBackend(object):
             # public_key = RSAAlgorithm.from_jwk(json.dumps(resp.json().get('keys')[0]))
             # self._cache[username] = jwt.decode(resp, public_key, algorithms=['RS256'], audience='account')
             public_key = None
+            # TODO Normalize
             self._cache[username] = jwt.decode(resp, public_key, algorithms=['RS256'], audience='account', verify=False)
             return True
         else:
