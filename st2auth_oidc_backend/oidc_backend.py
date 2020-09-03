@@ -78,8 +78,7 @@ class OIDCAuthenticationBackend(object):
             # public_key = RSAAlgorithm.from_jwk(json.dumps(resp.json().get('keys')[0]))
             # self._cache[username] = jwt.decode(resp, public_key, algorithms=['RS256'], audience='account')
             public_key = None
-            # TODO Normalize
-            self._cache[username] = jwt.decode(resp, public_key, algorithms=['RS256'], audience='account', verify=False)
+            self._cache[username.lower()] = jwt.decode(resp, public_key, algorithms=['RS256'], audience='account', verify=False)
             return True
         else:
             LOG.exception(
@@ -93,7 +92,7 @@ class OIDCAuthenticationBackend(object):
         :rtype: ``dict``
         """
         try:
-            user = self._cache.get(username)
+            user = self._cache.get(username.lower())
         except Exception:
             LOG.exception('Failed to retrieve details for user ' + username)
             return None
@@ -107,7 +106,7 @@ class OIDCAuthenticationBackend(object):
         :rtype: ``list`` of ``str``
         """
         try:
-            user = self._cache.get(username)
+            user = self._cache.get(username.lower())
             if self._use_client_roles:
                 roles = user.get('resource_access').get(self._client_name).get('roles')
             else:
