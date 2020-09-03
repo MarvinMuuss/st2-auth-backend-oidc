@@ -37,7 +37,7 @@ class OIDCAuthenticationBackend(object):
         AuthBackendCapability.HAS_GROUP_INFORMATION
     )
 
-    def __init__(self, token_url, client_name, client_secret, use_client_roles=True, http_proxy=None,
+    def __init__(self, token_url, client_name, client_secret, jwt_roles_path,  http_proxy=None,
                  https_proxy=None, ftp_proxy=None, verify_ssl=True):
 
         if not token_url:
@@ -49,10 +49,13 @@ class OIDCAuthenticationBackend(object):
         if not client_secret:
             raise ValueError('Client secret is not provided.')
 
+        if not jwt_roles_path:
+            raise ValueError('Path to roles in jwt is not provided.')
+
         self._token_url = token_url
         self._client_name = client_name
         self._client_secret = client_secret
-        self._use_client_roles = use_client_roles
+        self._jwt_roles_path = jwt_roles_path
         self._proxy_dict = {
             "http": http_proxy,
             "https": https_proxy,
@@ -107,14 +110,15 @@ class OIDCAuthenticationBackend(object):
         """
         try:
             user = self._cache.get(username.lower())
-            if self._use_client_roles:
-                roles = user.get('resource_access').get(self._client_name).get('roles')
-            else:
-                roles = user.get('realm_access').get('roles')
+            roles = user
+            for level in self._jwt_roles_path.split('.'):
+                roles = roles[level]
+        except KeyError as ke:
+            LOG.exception('Path to roles in jwt seems not correct %s' % ke)
+            return None
         except Exception:
             LOG.exception('Failed to retrieve groups for user "%s"' % (username))
             return None
-
         return roles
 
     def _get_access_token(self, username, password):
